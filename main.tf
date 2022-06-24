@@ -442,3 +442,17 @@ resource "kubernetes_config_map_v1_data" "aws_auth" {
     kubernetes_config_map.aws_auth,
   ]
 }
+
+data "http" "wait_for_cluster" {
+  count = 0 #var.create_eks && var.manage_aws_auth ? 1 : 0
+
+  url            = format("%s/healthz", aws_eks_cluster.this[0].endpoint)
+  ca_certificate = "" #base64decode(local.cluster_auth_base64)
+  timeout        = 0 #var.wait_for_cluster_timeout
+
+  depends_on = [
+    #aws_eks_cluster.this,
+    #aws_security_group_rule.cluster_private_access_sg_source,
+    #aws_security_group_rule.cluster_private_access_cidrs_source,
+  ]
+}
